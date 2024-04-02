@@ -1,0 +1,211 @@
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap");
+
+* {
+  padding: 0rem;
+  margin: 0rem;
+  font-family: "Open Sans", sans-serif;
+}
+
+/* ========== Variables ============ */
+:root {
+  --primary: #f3f4f6;
+  --border: #d1d5db;
+  --secondary: #1f2937;
+  --accent: #2563eb;
+  --danger: #ef4444;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --info: #3b82f6;
+}
+
+/* ======= container ===========  */
+
+.flex {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.section {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.justify-around {
+  justify-content: space-around;
+}
+
+.h-screen {
+  min-height: 97.1vh;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.container {
+  max-width: 1200px;
+  width: 100%;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.underline::after {
+  content: " ";
+  width: 80%;
+  margin-top: 2rem;
+}
+
+p {
+  font-size: 0.9rem;
+  color: var(--secondary);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  padding: 0px;
+  margin: 0px;
+  background-color: transparent;
+}
+
+h1 {
+  font-size: 5rem;
+  color: var(--secondary);
+}
+
+h2 {
+  font-size: 4rem;
+  color: var(--secondary);
+}
+
+h3 {
+  font-size: 3rem;
+  color: var(--secondary);
+}
+
+h4 {
+  font-size: 2rem;
+  color: var(--secondary);
+}
+
+h5 {
+  font-size: 1.2rem;
+  color: var(--secondary);
+}
+
+h6 {
+  font-size: 1rem;
+  color: var(--secondary);
+}
+
+p {
+  /* font-size: 1.2rem; */
+}
+
+a {
+  text-underline-offset: 0.25rem;
+}
+
+span {
+  font-size: 0.75rem;
+  opacity: 0.8;
+  background-color: transparent;
+}
+
+input,
+select {
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+}
+
+.border {
+  border: 1px solid var(--border);
+}
+
+.gap-2 {
+  gap: 0.5rem;
+}
+
+.mt-2 {
+  margin-top: 0.5rem;
+}
+
+.mt-4 {
+  margin-top: 1rem;
+}
+
+.primary__btn {
+  background-color: var(--accent);
+  color: var(--primary);
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 0.25rem;
+  border: none;
+  cursor: pointer;
+}
+
+.separator {
+  content: " ";
+  max-width: 100%;
+  height: 1px;
+  border-radius: 10px;
+  color: var(--border);
+  background-color: var(--border);
+  margin: 0.75rem 0.25rem;
+}
+
+/* =========== card ========= */
+.card {
+  max-width: 400px;
+  width: 100%;
+  margin: 2rem 1rem;
+  padding: 1rem 1rem;
+  border-radius: 10px;
+  background-color: var(--primary);
+  border: 1px solid var(--border);
+}
+
+.card__header {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* ====== Alert ======== */
+
+.alert {
+  padding: 1rem;
+  border-radius: 0.5rem;
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  max-width: 350px;
+  border: 1px dashed var(--border);
+}
+
+.alert__close {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  cursor: pointer;
+  margin-left: 0.5rem;
+}
