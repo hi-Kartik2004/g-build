@@ -61,12 +61,12 @@ session_start();
                     <div class="separator"></div>
 
                     <p class="">
-                        By registering you agree to our <a href="https://github.com/hi-kartik2004/g-build" target="_blank">Terms & Conditions</a>
+                        Check out our <a href="https://github.com/hi-kartik2004/g-build" target="_blank">Terms & Conditions</a>
                     </p>
 
-                    <p class="mt-2">
+                    <!-- <p class="mt-2">
                         Already have an account? <a href="?page=login">Login</a>
-                    </p>
+                    </p> -->
 
                 </form>
 
