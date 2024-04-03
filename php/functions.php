@@ -636,3 +636,179 @@ function calculateCGPA($semester_scores)
         return 0; // Return 0 if there are no semesters
     }
 }
+
+
+// ========= Attendance management ===========
+
+function addAttendanceClass($sem, $subject, $first_working_date, $last_working_date, $class_days)
+{
+    global $conn;
+
+    // Prepare SQL statement to insert attendance data
+    $query = "INSERT INTO `attendance` (name, email, usn, sem, subject, first_working_date, last_working_date, current_attendance, updated_at, class_days) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+    // Get user data from session
+    $name = $_SESSION['user']['name'];
+    $email = $_SESSION['user']['email'];
+    $usn = $_SESSION['user']['usn'];
+    $current_attendance = 0; // assuming initial attendance is 0
+    $updated_at = date('Y-m-d H:i:s'); // current datetime
+
+    // Prepare the statement
+    $stmt = mysqli_prepare($conn, $query);
+
+    if ($stmt) {
+        // Bind parameters to the prepared statement
+        mysqli_stmt_bind_param($stmt, "sssisssiss", $name, $email, $usn, $sem, $subject, $first_working_date, $last_working_date, $current_attendance, $updated_at, $class_days);
+
+        // Execute the prepared statement
+        if (mysqli_stmt_execute($stmt)) {
+            // Insert successful
+            $_SESSION['success'] = "Attendance record added successfully.";
+        } else {
+            // Insert failed
+            $_SESSION['error'] = "Error adding attendance record: " . mysqli_error($conn);
+        }
+
+        // Close statement
+        mysqli_stmt_close($stmt);
+    } else {
+        // Error in preparing the statement
+        $_SESSION['error'] = "Failed to prepare the statement";
+    }
+}
+
+function getAllAttendanceClasses($email, $usn)
+{
+    global $conn;
+
+    // Prepare SQL statement to fetch attendance classes for a specific user
+    $query = "SELECT * FROM `attendance` WHERE `email` = ? AND `usn` = ?";
+
+    // Prepare the statement
+    $stmt = mysqli_prepare($conn, $query);
+
+    if ($stmt) {
+        // Bind parameters to the prepared statement
+        mysqli_stmt_bind_param($stmt, "ss", $email, $usn);
+
+        // Execute the prepared statement
+        if (mysqli_stmt_execute($stmt)) {
+            // Get result set
+            $result = mysqli_stmt_get_result($stmt);
+
+            // Initialize an empty array to store attendance classes
+            $attendanceClasses = [];
+
+            // Fetch each row from the result set
+            while ($row = mysqli_fetch_assoc($result)) {
+                // Add the fetched row to the attendance classes array
+                $attendanceClasses[] = $row;
+            }
+
+            // Free result set
+            mysqli_free_result($result);
+        } else {
+            // If execution failed, handle the error as needed
+            $_SESSION['error'] = "Error executing query: " . mysqli_error($conn);
+        }
+
+        // Close statement
+        mysqli_stmt_close($stmt);
+    } else {
+        // If preparation failed, handle the error as needed
+        $_SESSION['error'] = "Failed to prepare the statement";
+    }
+
+    // Return the array of attendance classes
+    return $attendanceClasses;
+}
+
+function updateAttendanceDates($recordId, $attendedDates)
+{
+    global $conn;
+
+    // Prepare the SQL statement to update the current_attendance and attended_dates fields
+    $query = "UPDATE attendance SET current_attendance = ?, attended_dates = ? WHERE id = ?";
+
+    // Count the number of attended dates
+    $attendanceCount = count(explode(',', $attendedDates));
+
+    // Prepare the statement
+    $stmt = mysqli_prepare($conn, $query);
+
+    if ($stmt) {
+        // Bind parameters to the prepared statement
+        mysqli_stmt_bind_param($stmt, "isi", $attendanceCount, $attendedDates, $recordId);
+
+        // Execute the prepared statement
+        if (mysqli_stmt_execute($stmt)) {
+            // Update successful
+            $_SESSION['success'] = "Attendance updated successfully.";
+        } else {
+            // Update failed
+            $_SESSION['error'] = "Error updating attendance: " . mysqli_error($conn);
+        }
+
+        // Close statement
+        mysqli_stmt_close($stmt);
+    } else {
+        // Error in preparing the statement
+        $_SESSION['error'] = "Failed to prepare the statement";
+    }
+}
+
+
+function filterAttendanceClasses($sem = null, $subject = null)
+{
+    // Start the session if not already started
+    session_start();
+
+    // Get all attendance classes
+    $data = getAllAttendanceClasses($_SESSION['user']['email'], $_SESSION['user']['usn']);
+
+    // Initialize an empty array to store filtered data
+    $filteredData = [];
+
+    // Loop through each attendance class and apply filters
+    foreach ($data as $record) {
+        // Convert semesters and subjects to lowercase for consistent comparison
+        $recordSem = strtolower($record['sem']);
+        $recordSubject = strtolower($record['subject']);
+
+        // Check if either semester or subject match the record
+        if (($sem === null || $recordSem == $sem) || ($subject === null || $recordSubject == $subject)) {
+            // Add the record to filtered data
+            $filteredData[] = $record;
+        }
+    }
+
+    // Return the filtered data
+    return $filteredData;
+}
+
+function deleteAttendanceClass($id)
+{
+    global $conn;
+
+    // Prepare the SQL statement
+    $stmt = $conn->prepare("DELETE FROM attendance WHERE id = ?");
+    $stmt->bind_param("i", $id);
+
+    // Execute the statement
+    if ($stmt->execute()) {
+        // Attendance class deleted successfully
+        $_SESSION['success'] = "Attendance class deleted successfully.";
+        header("Location: ../index.php?page=attendance-management");
+        exit();
+    } else {
+        // Error occurred while executing the statement
+        $_SESSION['error'] = "Error deleting attendance class: " . $conn->error;
+        header("Location: ../index.php?page=attendance-management");
+        exit();
+    }
+
+    // Close statement and database connection
+    $stmt->close();
+    $conn->close();
+}

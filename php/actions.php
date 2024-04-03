@@ -139,3 +139,56 @@ if (isset($_GET['deleteTestScore'])) {
     header("Location: ../index.php?page=test-score-tracker");
     exit();
 }
+
+// ========== Add attendance class ===========
+if (isset($_GET['addAttendanceClass'])) {
+
+    $sem = trim(strtolower($_POST['sem']));
+    $subject = trim(strtolower($_POST['subject']));
+    $startDate = trim(strtolower($_POST['first_working_date']));
+    $endDate = trim(strtolower($_POST['last_working_date']));
+    $classDays = trim(strtolower($_POST['class_days']));
+    addAttendanceClass($sem, $subject, $startDate, $endDate, $classDays);
+
+    header("Location: ../index.php?page=attendance-management");
+    exit();
+}
+
+// ========== mark / update attendance ========
+if (isset($_GET['markAttendance'])) {
+    // Get the record ID from the URL parameter
+    $recordId = $_GET['markAttendance'];
+
+    // Ensure that the record ID is an integer
+    if (is_numeric($recordId)) {
+        // Get the attended dates from the submitted form data
+        $attendedDates = implode(',', $_POST['attendance']);
+
+        // Update the attended_dates field in the database
+        updateAttendanceDates($recordId, $attendedDates);
+
+        // Redirect to the attendance management page
+        header("Location: ../index.php?page=attendance-management");
+        exit();
+    }
+}
+
+// ======== Filter attendance ========
+
+if (isset($_GET['filterAttendanceClasses'])) {
+    $sem = trim(strtolower($_POST['sem']));
+    $subject = trim(strtolower($_POST['subject']));
+    $data = filterAttendanceClasses($sem, $subject);
+    $_SESSION['filteredAttendanceClasses'] = $data;
+    header("Location: ../index.php?page=attendance-management");
+    exit();
+}
+
+// ========= Handle delete attendance =======
+
+if (isset($_GET['deleteAttendanceClasses'])) {
+    $id = $_GET['deleteAttendanceClasses'];
+    deleteAttendanceClass($id);
+    header("Location: ../index.php?page=attendance-management");
+    exit();
+}
