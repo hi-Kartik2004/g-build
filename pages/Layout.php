@@ -18,6 +18,10 @@ session_start();
             include('./pages/TestScoreTracker.php');
         } else if ($page == "attendance-management") {
             include('./pages/AttendanceManagement.php');
+        } else if ($page == "expense-tracker") {
+            include('./pages/ExpenseTracker.php');
+        } else if ($page == "editProfile") {
+            include("./pages/EditProfilePage.php");
         } else {
             include("./pages/DashboardPage.php");
         }

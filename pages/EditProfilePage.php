@@ -2,8 +2,8 @@
 session_start();
 ?>
 <section class="section">
-    <div class=" container h-screen flex flex-col items-center justify-center">
-        <div class="card">
+    <div class="container-fluid h-screen flex flex-col items-center justify-center" style="width:1250px;">
+        <div class="card" style="width: 100%;">
             <div class="card__header">
                 <h4 class="underline">
                     View & Edit profile
