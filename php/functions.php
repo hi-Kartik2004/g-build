@@ -616,27 +616,44 @@ function deleteTestScore(
 
 
 // ========== calculate cgpa =========
-
 function calculateCGPA($semester_scores)
 {
-    // Initialize variables
-    $total_sgpa = 0;
-    $total_semesters = count($semester_scores);
+    // Check if semester scores array is empty
+    if (empty($semester_scores)) {
+        echo "No semester scores available\n";
+        return 0; // Return 0 if no semester scores are available
+    }
+
+    // Initialize total SGPA and count of valid semesters
+    $total_sgpa = 0.0;
+    $valid_semesters = 0;
 
     // Calculate total SGPA
     foreach ($semester_scores as $semester_score) {
-        $total_sgpa += calculateSGPA($semester_score['totalMarks'], $semester_score['totalPossibleMarks']);
+        // Ensure that required keys are present in the array
+        if (isset($semester_score['totalMarks'], $semester_score['totalPossibleMarks'])) {
+            // Ensure that calculateSGPA returns a numeric value
+            $sgpa = calculateSGPA($semester_score['totalMarks'], $semester_score['totalPossibleMarks']);
+            if (is_numeric($sgpa) && $sgpa !== "Failed") {
+                $total_sgpa += $sgpa;
+                $valid_semesters++;
+            } else {
+            }
+        } else {
+            // echo "Missing keys in semester score\n";
+        }
     }
 
     // Calculate CGPA
-    if ($total_semesters > 0) {
-        $cgpa = $total_sgpa / $total_semesters;
+    if ($valid_semesters > 0) {
+        $cgpa = $total_sgpa / $valid_semesters;
+        // echo "Calculated CGPA: $cgpa\n";
         return number_format($cgpa, 2); // Format CGPA to two decimal places
     } else {
-        return 0; // Return 0 if there are no semesters
+        echo "No valid semesters available\n";
+        return 0; // Return 0 if there are no valid semesters
     }
 }
-
 
 // ========= Attendance management ===========
 
