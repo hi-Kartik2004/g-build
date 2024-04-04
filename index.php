@@ -45,8 +45,7 @@ if (isset($_GET['page'])) {
     }
 } else {
     // landing page
-    include("./pages/components/Navbar.php");
-    include("./pages/components/HeroSection.php");
+    include("./pages/LandingPage.php");
 }
 
 include("./pages/components/HtmlFooter.php");

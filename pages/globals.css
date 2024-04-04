@@ -122,10 +122,6 @@ h6 {
   color: var(--secondary);
 }
 
-p {
-  /* font-size: 1.2rem; */
-}
-
 a {
   text-underline-offset: 0.25rem;
 }
