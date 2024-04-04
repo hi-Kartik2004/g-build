@@ -53,33 +53,35 @@ Team Name: Kartikeya Saini
      - count of pending deadline between start and end dates.
 
  ### Bonus Features
-   ### Collaboration Hub.
-   - Users can add topics of discussions (gigs)
-   - Search gigs by tags.
-   - Search gigs by name.
-   - Search gigs by title.
-   - Edit gigs.
-   - Delete gigs.
-   - Allow user to communicate using a chat (using AJAX i.e without page reload);
-   - Report a gig chat.
+    ### Collaboration Hub.
+    - Users can add topics of discussions (gigs)
+    - Search gigs by tags.
+    - Search gigs by name.
+    - Search gigs by title.
+    - Edit gigs.
+    - Delete gigs.
+    - Allow user to communicate using a chat (using AJAX i.e without page reload);
+    - Report a gig chat.
    
    ### Resource Repository.
-   - Add repository name 
-   - Dont allow multiple repo_names
-   - Set repo visibility (i.e public or private)
-   - Find public repos
-   - Search in your repos
-   - Add files in repos
-   - Users can Edit only their repos
-   - Users can delete only their repos
-   - Upload files to repos.
-   - View other public repos
+    End points
+    - Add repository name 
+    - Dont allow multiple repo_names
+    - Set repo visibility (i.e public or private)
+    - Find public repos
+    - Search in your repos
+    - Add files in repos
+    - Users can Edit only their repos
+    - Users can delete only their repos
+    - Upload files to repos.
+    - View other public repos
 
  ### Other login Stuff
-   - User Registration.
-   - User Login
-   - Edit profile
-   - Upload and edit profile pictures.
+    End points
+    - User Registration.
+    - User Login
+    - Edit profile
+    - Upload and edit profile pictures.
     
     
 
