@@ -21,6 +21,7 @@ session_start();
     <a href="?page=collaboration-hub">Collaboration Hub</a>
     <a href="?page=Resource-repository">Resource Repository</a>
     <a href="https://github.com/hi-kartik2004/g-build" target="_blank">Github Repository</a>
+    <a href="https://github.com/hi-kartik2004/g-build" target="_blank">Readme File</a>
   </div>
   <div class="separator"></div>
   <div style="display: flex; flex-direction:column; gap: 1rem;">

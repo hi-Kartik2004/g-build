@@ -1261,3 +1261,214 @@ function reportGig($gig_id, $reporter_email, $title, $remarks)
         return false;
     }
 }
+
+// ========== resource repo ============
+function addRepository($email, $usn, $repoName, $visibility, $filePath)
+{
+    // Add repository to the database
+    global $conn;
+    $stmt = $conn->prepare("INSERT INTO repositories (email, usn, repo_name, visibility, file_path) VALUES (?, ?, ?, ?, ?)");
+    $stmt->bind_param("sssss", $email, $usn, $repoName, $visibility, $filePath);
+    $stmt->execute();
+    $stmt->close();
+}
+
+function updateRepository($repoId, $repoName, $visibility, $filePath)
+{
+    // Update repository in the database
+    global $conn;
+    $stmt = $conn->prepare("UPDATE repositories SET repo_name = ?, visibility = ?, file_path = ? WHERE id = ?");
+    $stmt->bind_param("sssi", $repoName, $visibility, $filePath, $repoId);
+    $stmt->execute();
+    $stmt->close();
+
+    return true;
+}
+
+function deleteRepository($repoId)
+{
+    // Delete repository from the database
+    global $conn;
+    $stmt = $conn->prepare("DELETE FROM repositories WHERE id = ?");
+    $stmt->bind_param("i", $repoId);
+    $stmt->execute();
+    $stmt->close();
+}
+
+function getRepositories($email, $usn)
+{
+    // Retrieve repositories from the database
+    global $conn;
+    $stmt = $conn->prepare("SELECT * FROM repositories WHERE email = ? AND usn = ?");
+    $stmt->bind_param("ss", $email, $usn);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $repositories = $result->fetch_all(MYSQLI_ASSOC);
+    $stmt->close();
+    return $repositories;
+}
+
+
+function isRepoNameAvailable($connection, $repoName)
+{
+    // Escape the repository name to prevent SQL injection
+    $escapedRepoName = mysqli_real_escape_string($connection, $repoName);
+
+    // Query to check if the repository name already exists
+    $query = "SELECT * FROM repositories WHERE repo_name = '$escapedRepoName'";
+    $result = mysqli_query($connection, $query);
+
+    // Check if there are any rows returned
+    if (mysqli_num_rows($result) > 0) {
+        // Repository name already exists
+        return false;
+    } else {
+        // Repository name is available
+        return true;
+    }
+}
+
+// Function to check if the repository belongs to the user
+function isRepoBelongsToUser($connection, $repoName, $email)
+{
+    // Escape the repository name and email to prevent SQL injection
+    $escapedRepoName = mysqli_real_escape_string($connection, $repoName);
+    $escapedEmail = mysqli_real_escape_string($connection, $email);
+
+    // Query to check if the repository name belongs to the user
+    $query = "SELECT * FROM repositories WHERE repo_name = '$escapedRepoName' AND email = '$escapedEmail'";
+    $result = mysqli_query($connection, $query);
+
+    // Check if there are any rows returned
+    if (mysqli_num_rows($result) > 0) {
+        // Repository belongs to the user
+        return true;
+    } else {
+        // Repository does not belong to the user
+        return false;
+    }
+}
+
+// ======= get repo ====
+
+function getRepository($repoId)
+{
+    // Retrieve repository details from the database
+    global $conn;
+    $stmt = $conn->prepare("SELECT * FROM repositories WHERE id = ?");
+    $stmt->bind_param("i", $repoId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $repository = $result->fetch_assoc();
+    $stmt->close();
+    return $repository;
+}
+
+
+// check repo visibilty ====
+function checkRepositoryVisibility($repo_name, $email)
+{
+    global $conn;
+
+    // Prepare SQL statement to retrieve the visibility of the repository based on its name
+    $sql = "SELECT visibility FROM repositories WHERE repo_name = ?";
+
+    // Prepare and bind parameters
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $repo_name);
+
+    // Execute the statement
+    $stmt->execute();
+
+    // Get the result
+    $result = $stmt->get_result();
+
+    // Check if there is a result
+    if ($result->num_rows > 0) {
+        // Fetch the row
+        $row = $result->fetch_assoc();
+
+        // Close the statement
+        $stmt->close();
+
+        // If the person accessing is the owner, return true
+        if ($email === $_SESSION['user']['email']) {
+            return true;
+        }
+
+        // Return the visibility
+        return $row['visibility'];
+    } else {
+        // Return null if repository not found
+        return null;
+    }
+
+    // Close the statement
+    $stmt->close();
+
+    // Close the database connection
+    $conn->close();
+}
+
+
+// ======= filter repos ======
+
+function filterRepositories($repoName)
+{
+    global $conn;
+
+    // Prepare SQL statement to retrieve repositories with public visibility and matching repository name
+    $sql = "SELECT * FROM repositories WHERE visibility = 'public' AND repo_name LIKE ?";
+
+    // Prepare and bind parameters
+    $stmt = $conn->prepare($sql);
+    $repoName = '%' . $repoName . '%'; // Add wildcards to match any part of the repository name
+    $stmt->bind_param("s", $repoName);
+
+    // Execute the statement
+    $stmt->execute();
+
+    // Get the result
+    $result = $stmt->get_result();
+
+    // Fetch all rows as associative array
+    $repositories = $result->fetch_all(MYSQLI_ASSOC);
+
+    // Close the statement
+    $stmt->close();
+
+    return $repositories;
+}
+
+
+//  === filter in my repos ====
+
+function filterMyRepositories($email, $usn, $repoName)
+{
+    global $conn;
+
+    // Prepare SQL statement to retrieve repositories matching the given name and with public visibility
+    $sql = "SELECT * FROM repositories WHERE email = ? AND usn = ? AND repo_name LIKE ?";
+
+    // Add wildcard characters to the repository name for partial matching
+    $repoName = '%' . $repoName . '%';
+
+    // Prepare and bind parameters
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("sss", $email, $usn, $repoName);
+
+    // Execute the statement
+    $stmt->execute();
+
+    // Get the result
+    $result = $stmt->get_result();
+
+    // Fetch all rows as an associative array
+    $repositories = $result->fetch_all(MYSQLI_ASSOC);
+
+    // Close the statement
+    $stmt->close();
+
+    // Return the filtered repositories
+    return $repositories;
+}

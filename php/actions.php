@@ -500,3 +500,134 @@ if (isset($_GET['reportGig'])) {
         exit();
     }
 }
+
+// Repo stuff
+if (isset($_GET['addRepo'])) {
+    $repo_name = $_POST['repo_name'];
+    $visibility = $_POST['visibility'];
+    $file_path = ""; // Initialize $file_path variable
+
+    // Check if the repository name is available
+    if (isRepoNameAvailable($conn, $repo_name)) {
+        // Check if the file upload was successful
+        if ($_FILES['repo_file']['error'] == UPLOAD_ERR_OK) {
+            $uploadDir = "./uploads/";
+            $timestamp = time(); // Get current timestamp
+            $fileName = $timestamp . '_' . basename($_FILES['repo_file']['name']); // Prepend timestamp to file name
+            $uploadedFile = $uploadDir . $fileName;
+
+            // Move the uploaded file to the uploads folder
+            if (move_uploaded_file($_FILES['repo_file']['tmp_name'], $uploadedFile)) {
+                $file_path = $uploadedFile;
+
+                // Add the repository to the database with the file path
+                addRepository($_SESSION['user']['email'], $_SESSION['user']['usn'], $repo_name, $visibility, $file_path);
+                $_SESSION['success'] = "Repository added successfully.";
+            } else {
+                $_SESSION['error'] = "Failed to move uploaded file.";
+            }
+        } else {
+            // Log the specific error message
+            $_SESSION['error'] = "Failed to upload file. Error: " . $_FILES['repo_file']['error'];
+        }
+    } else {
+        // Check if the existing repository belongs to the signed-in user
+        if (isRepoBelongsToUser($conn, $repo_name, $_SESSION['user']['email'])) {
+            // Update the file details
+            // Proceed with updating the file path or other details as needed
+            // This part needs to be implemented based on your requirements
+            $_SESSION['error'] = "Repository name already exists. File details updated.";
+        } else {
+            // Repository name is taken by another user, show error message
+            $_SESSION['error'] = "Repository name already exists and is owned by another user.";
+        }
+    }
+
+    // Redirect back to the index page after adding or updating the repository
+    header("Location: ../index.php?page=Resource-repository");
+    exit();
+}
+
+// ========== Update Repository ==========
+if (isset($_GET['updateRepo'])) {
+    $repoId = $_POST['repo_id'];
+    $repoName = $_POST['repo_name'];
+    $visibility = $_POST['visibility'];
+    $file_path = $_POST['current_file_path']; // Get current file path from form data
+
+    // Handle file upload if a new file is selected
+    if ($_FILES['repo_file']['error'] == UPLOAD_ERR_OK) {
+        $uploadDir = "./uploads/";
+        $timestamp = time(); // Get current timestamp
+        $fileName = $timestamp . '_' . basename($_FILES['repo_file']['name']); // Prepend timestamp to file name
+        $uploadedFile = $uploadDir . $fileName;
+
+        // Move the uploaded file to the uploads folder
+        if (move_uploaded_file($_FILES['repo_file']['tmp_name'], $uploadedFile)) {
+            // Append new file path to the current file path with comma separation
+            $file_path .= ',' . $uploadedFile;
+        } else {
+            $_SESSION['error'] = "Failed to move uploaded file.";
+            header("Location: ../index.php?page=Resource-repository");
+            exit();
+        }
+    }
+
+    // Update repository in the database
+    $success = updateRepository($repoId, $repoName, $visibility, $file_path);
+    if ($success) {
+        $_SESSION['success'] = "Repository updated successfully.";
+    } else {
+        $_SESSION['error'] = "Failed to update repository.";
+    }
+
+    // Redirect back to the index page after updating the repository
+    header("Location: ../index.php?page=Resource-repository");
+    exit();
+}
+
+// ========== Delete Repository ==========
+if (isset($_GET['deleteRepo'])) {
+    $repoId = $_GET['deleteRepo'];
+
+    // Delete the repository from the database
+    $success = deleteRepository($repoId);
+    if ($success) {
+        $_SESSION['success'] = "Repository deleted successfully.";
+    } else {
+        $_SESSION['error'] = "Failed to delete repository.";
+    }
+
+    // Redirect back to the index page after deleting the repository
+    header("Location: ../index.php?page=Resource-repository");
+    exit();
+}
+
+
+// ======= edit repo ======
+if (isset($_GET['editRepo'])) {
+    $id = $_GET['editRepo'];
+    $data = getRepository($id);
+    $_SESSION['editRepo'] = $data;
+    header("Location: ../index.php?page=Resource-repository");
+    exit();
+}
+
+// ====== filterRepo ====
+if (isset($_GET['filterRepo'])) {
+    $repoName = $_POST['repo_name'];
+    $repositories = filterRepositories($repoName);
+    $_SESSION['filteredRepositories'] = $repositories;
+    header("Location: ../index.php?page=Resource-repository");
+    exit();
+}
+
+//  ======= filterMyRepo ======
+
+if (isset($_GET['filterMyRepo'])) {
+    $repoName = $_POST['repo_name'];
+    $repositories = filterMyRepositories($_SESSION['user']['email'], $_SESSION['user']['usn'], $repoName);
+    $_SESSION['filteredRepositories'] = $repositories;
+    header("Location: ../index.php?page=Resource-repository");
+    exit();
+}

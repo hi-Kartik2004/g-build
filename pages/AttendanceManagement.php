@@ -32,7 +32,9 @@ if (isset($_SESSION['filteredAttendanceClasses'])) {
             $totalAttended += count(explode(',', $record['attended_dates']));
         }
 
-        $overallPercentage = ($totalAttended / $totalPossible) * 100;
+        if ($totalPossible > 0)
+            $overallPercentage = ($totalAttended / $totalPossible) * 100;
+        else $overallPercentage = 0;
         ?>
 
         <!-- Display overall attendance percentage -->
