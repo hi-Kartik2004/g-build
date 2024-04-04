@@ -192,3 +192,141 @@ if (isset($_GET['deleteAttendanceClasses'])) {
     header("Location: ../index.php?page=attendance-management");
     exit();
 }
+
+
+// ======== handling expenses
+
+// Check if the form is for adding or updating an expense
+if (isset($_GET['addExpense'])) {
+    // Add expense
+    $category = $_POST['category'];
+    $amount = $_POST['amount'];
+    $date = $_POST['date'];
+    $remarks = $_POST['remarks'];
+
+    // Add the expense
+    $success = addExpense($_SESSION['user']['email'], $_SESSION['user']['usn'], $category, $amount, $date, $remarks);
+
+    if ($success) {
+        // Expense added successfully
+        header("Location: ../index.php?page=expense-tracker");
+        exit();
+    } else {
+        // Failed to add expense
+        $_SESSION['error'] = "Failed to add expense.";
+        header("Location: ../index.php?page=expense-tracker");
+        exit();
+    }
+} elseif (isset($_GET['updateExpense'])) {
+    // Update expense
+    $id = $_GET['updateExpense'];
+    $category = $_POST['category'];
+    $amount = $_POST['amount'];
+    $date = $_POST['date'];
+    $remarks = $_POST['remarks'];
+
+    // Update the expense
+    $success = updateExpense($id, $category, $amount, $date, $remarks);
+
+    if ($success) {
+        // Expense updated successfully
+        header("Location: ../index.php?page=expense-tracker");
+        exit();
+    } else {
+        // Failed to update expense
+        $_SESSION['error'] = "Failed to update expense.";
+        header("Location: ../index.php?page=expense-tracker");
+        exit();
+    }
+} elseif (isset($_GET['deleteExpense'])) {
+    // Delete expense
+    $id = $_GET['deleteExpense'];
+
+    // Delete the expense
+    $success = deleteExpense($id);
+
+    if ($success) {
+        // Expense deleted successfully
+        header("Location: ../index.php?page=expense-tracker");
+        exit();
+    } else {
+        // Failed to delete expense
+        $_SESSION['error'] = "Failed to delete expense.";
+        header("Location: ../index.php?page=expense-tracker");
+        exit();
+    }
+} elseif (isset($_GET['filterExpenses'])) {
+    // Filter expenses
+    $category = isset($_POST['category']) ? $_POST['category'] : null;
+    $startDate = isset($_POST['startDate']) ? $_POST['startDate'] : null;
+    $endDate = isset($_POST['endDate']) ? $_POST['endDate'] : null;
+
+    // Filter the expenses
+    $_SESSION['filteredExpenses'] = filterExpenses($_SESSION['user']['email'], $_SESSION['user']['usn'], $category, $startDate, $endDate);
+    header("Location: ../index.php?page=expense-tracker");
+    exit();
+} else if (isset($_GET['editExpense'])) {
+    $id = $_GET['editExpense'];
+    $data = getExpenseByID($id);
+    $_SESSION['editExpense'] = $data;
+    header("Location: ../index.php?page=expense-tracker");
+    exit();
+}
+
+// ========== deadlines ==========
+
+if (isset($_GET['addDeadline'])) {
+    $task = $_POST['task'];
+    $deadline_date = $_POST['deadline_date'];
+    $priority = $_POST['priority'];
+
+    addDeadline($_SESSION['user']['email'], $_SESSION['user']['usn'], $task, $deadline_date, $priority);
+    header("Location: ../index.php?page=deadline-reminders");
+    exit();
+}
+
+// Handle update deadline action
+if (isset($_GET['updateDeadline'])) {
+    $deadline_id = $_GET['updateDeadline'];
+    $task = $_POST['task'];
+    $deadline_date = $_POST['deadline_date'];
+    $priority = $_POST['priority'];
+
+    updateDeadline($_SESSION['user']['email'], $_SESSION['user']['usn'], $deadline_id, $task, $deadline_date, $priority);
+    header("Location: ../index.php?page=deadline-reminders");
+    exit();
+}
+
+// Handle delete deadline action
+if (isset($_GET['deleteDeadline'])) {
+    $deadline_id = $_GET['deleteDeadline'];
+
+    deleteDeadline($_SESSION['user']['email'], $_SESSION['user']['usn'], $deadline_id);
+    header("Location: ../index.php?page=deadline-reminders");
+    exit();
+}
+
+// Handle filter deadlines action
+if (isset($_GET['filterDeadlines'])) {
+    $task = $_POST['task'];
+    $priority = $_POST['priority'];
+    $start_date = $_POST['startDate'];
+    $end_date = $_POST['endDate'];
+
+    $filteredDeadlines = filterDeadlines($_SESSION['user']['email'], $_SESSION['user']['usn'], $task, $priority, $start_date, $end_date);
+    $_SESSION['filteredDeadlines'] = $filteredDeadlines;
+    header("Location: ../index.php?page=deadline-reminders");
+    exit();
+}
+
+if (isset($_GET['editDeadline'])) {
+    $deadlineId = $_GET['editDeadline'];
+    $deadline = getDeadlineById($deadlineId);
+
+    // Store the deadline details in session for use in the form
+    $_SESSION['editDeadline'] = $deadline;
+
+    // Redirect to the page with the form
+    header("Location: ../index.php?page=deadline-reminders");
+    exit();
+}

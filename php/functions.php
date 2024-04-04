@@ -829,3 +829,267 @@ function deleteAttendanceClass($id)
     $stmt->close();
     $conn->close();
 }
+
+
+
+//  ======== expense functions =====
+
+function getAllExpenses($email, $usn)
+{
+    global $conn;
+    $sql = "SELECT * FROM expenses WHERE user_email = ? AND user_usn = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ss", $email, $usn);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $expenses = $result->fetch_all(MYSQLI_ASSOC);
+    $stmt->close();
+    return $expenses;
+}
+
+// Function to add an expense
+function addExpense($email, $usn, $category, $amount, $date, $remarks)
+{
+    global $conn;
+    $sql = "INSERT INTO expenses (user_email, user_usn, category, amount, date, remarks) VALUES (?, ?, ?, ?, ?, ?)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ssssss", $email, $usn, $category, $amount, $date, $remarks);
+    $success = $stmt->execute();
+    $stmt->close();
+    return $success;
+}
+
+// Function to update an expense
+function updateExpense($id, $category, $amount, $date, $remarks)
+{
+    global $conn;
+    $sql = "UPDATE expenses SET category = ?, amount = ?, date = ?, remarks = ? WHERE id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ssssi", $category, $amount, $date, $remarks, $id);
+    $success = $stmt->execute();
+    $stmt->close();
+    return $success;
+}
+
+// Function to delete an expense
+function deleteExpense($id)
+{
+    global $conn;
+    $sql = "DELETE FROM expenses WHERE id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $id);
+    $success = $stmt->execute();
+    $stmt->close();
+    return $success;
+}
+
+// Function to filter expenses
+function filterExpenses($email, $usn, $category = null, $startDate = null, $endDate = null)
+{
+    global $conn;
+    $sql = "SELECT * FROM expenses WHERE user_email = ? AND user_usn = ?";
+    $params = array("ss", $email, $usn);
+
+    if ($category != null) {
+        $sql .= " AND category = ?";
+        $params[0] .= "s";
+        $params[] = $category;
+    }
+
+    if ($startDate != null) {
+        $sql .= " AND date >= ?";
+        $params[0] .= "s";
+        $params[] = $startDate;
+    }
+
+    if ($endDate != null) {
+        $sql .= " AND date <= ?";
+        $params[0] .= "s";
+        $params[] = $endDate;
+    }
+
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param(...$params);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $expenses = $result->fetch_all(MYSQLI_ASSOC);
+    $stmt->close();
+    return $expenses;
+}
+
+function getExpenseById($expenseId)
+{
+    global $conn;
+    $sql = "SELECT * FROM expenses WHERE id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $expenseId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $expense = $result->fetch_assoc();
+    return $expense;
+}
+
+// ========= deadline functions ========
+
+function getAllDeadlines($email, $usn)
+{
+    global $conn;
+
+    // Prepare the SQL statement
+    $sql = "SELECT * FROM deadlines WHERE email = ? AND usn = ? AND deadline_date >= CURDATE() ORDER BY deadline_date ASC";
+
+    // Prepare the statement
+    $stmt = mysqli_prepare($conn, $sql);
+
+    // Bind parameters
+    mysqli_stmt_bind_param($stmt, "ss", $email, $usn);
+
+    // Execute the statement
+    if (!mysqli_stmt_execute($stmt)) {
+        // Handle query execution error
+        return false;
+    }
+
+    // Get the result
+    $result = mysqli_stmt_get_result($stmt);
+
+    // Check if there are any rows returned
+    if (mysqli_num_rows($result) > 0) {
+        $deadlines = [];
+        // Fetch the rows as associative arrays
+        while ($row = mysqli_fetch_assoc($result)) {
+            $deadlines[] = $row;
+        }
+        // Free the result
+        mysqli_free_result($result);
+        // Close the statement
+        mysqli_stmt_close($stmt);
+        return $deadlines;
+    } else {
+        // No deadlines found
+        // Free the result
+        mysqli_free_result($result);
+        // Close the statement
+        mysqli_stmt_close($stmt);
+        return [];
+    }
+}
+
+// Function to add a new deadline
+function addDeadline($email, $usn, $task, $deadline_date, $priority)
+{
+    global $conn;
+
+    // Example query to add a new deadline to the database
+    $sql = "INSERT INTO deadlines (email, usn, task, deadline_date, priority) VALUES ('$email', '$usn', '$task', '$deadline_date', '$priority')";
+    $result = mysqli_query($conn, $sql);
+
+    if (!$result) {
+        // Handle query execution error
+        return false;
+    }
+
+    return true;
+}
+
+// Function to update an existing deadline
+function updateDeadline($email, $usn, $deadline_id, $task, $deadline_date, $priority)
+{
+    global $conn;
+
+    // Example query to update an existing deadline in the database
+    $sql = "UPDATE deadlines SET task = '$task', deadline_date = '$deadline_date', priority = '$priority' WHERE id = '$deadline_id' AND email = '$email' AND usn = '$usn'";
+    $result = mysqli_query($conn, $sql);
+
+    if (!$result) {
+        // Handle query execution error
+        return false;
+    }
+
+    return true;
+}
+
+// Function to delete a deadline
+function deleteDeadline($email, $usn, $deadline_id)
+{
+    global $conn;
+
+    // Example query to delete a deadline from the database
+    $sql = "DELETE FROM deadlines WHERE id = '$deadline_id' AND email = '$email' AND usn = '$usn'";
+    $result = mysqli_query($conn, $sql);
+
+    if (!$result) {
+        // Handle query execution error
+        return false;
+    }
+
+    return true;
+}
+
+// Function to filter deadlines based on criteria
+function filterDeadlines($email, $usn, $task, $priority, $start_date, $end_date)
+{
+    global $conn;
+
+    // Build the SQL query dynamically based on the filter criteria
+    $sql = "SELECT * FROM deadlines WHERE email = '$email' AND usn = '$usn'";
+
+    if (!empty($task)) {
+        $sql .= " AND task LIKE '%$task%'";
+    }
+
+    if ($priority !== 'all') {
+        $sql .= " AND priority = '$priority'";
+    }
+
+    if (!empty($start_date) && !empty($end_date)) {
+        $sql .= " AND deadline_date BETWEEN '$start_date' AND '$end_date'";
+    } elseif (!empty($start_date)) {
+        $sql .= " AND deadline_date >= '$start_date'";
+    } elseif (!empty($end_date)) {
+        $sql .= " AND deadline_date <= '$end_date'";
+    }
+
+    $result = mysqli_query($conn, $sql);
+
+    if (!$result) {
+        // Handle query execution error
+        return false;
+    }
+
+    $filteredDeadlines = [];
+    while ($row = mysqli_fetch_assoc($result)) {
+        $filteredDeadlines[] = $row;
+    }
+
+    mysqli_free_result($result);
+
+    return $filteredDeadlines;
+}
+
+function getDeadlineById($deadlineId)
+{
+    // Global keyword to access the $conn variable
+    global $conn;
+
+    // Prepare and execute the SQL query
+    $stmt = $conn->prepare("SELECT * FROM deadlines WHERE id = ?");
+    $stmt->bind_param("i", $deadlineId);
+    $stmt->execute();
+
+    // Get the result
+    $result = $stmt->get_result();
+
+    // Check if a deadline was found
+    if ($result->num_rows === 1) {
+        // Fetch the deadline details as an associative array
+        $deadline = $result->fetch_assoc();
+        return $deadline;
+    } else {
+        // No deadline found with the given ID
+        return null;
+    }
+
+    // Close the statement
+    $stmt->close();
+}

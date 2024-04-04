@@ -22,6 +22,8 @@ session_start();
             include('./pages/ExpenseTracker.php');
         } else if ($page == "editProfile") {
             include("./pages/EditProfilePage.php");
+        } else if ($page == "deadline-reminders") {
+            include("./pages/DeadlineReminders.php");
         } else {
             include("./pages/DashboardPage.php");
         }
