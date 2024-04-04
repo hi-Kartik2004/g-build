@@ -18,10 +18,9 @@ session_start();
   <div class="separator"></div>
   <h5>Bonus Featues</h5>
   <div style="display: flex; flex-direction:column; gap: 1rem;">
-    <a href="?page=test-score-tracker">Test Score Tracker</a>
-    <a href="?page=attendance-management">Attendance</a>
-    <a href="?page=expense-tracker">Expense Tracker</a>
-    <a href="?page=deadline-reminders">Deadline reminders</a>
+    <a href="?page=collaboration-hub">Collaboration Hub</a>
+    <a href="?page=Resource-repository">Resource Repository</a>
+    <a href="https://github.com/hi-kartik2004/g-build" target="_blank">Github Repository</a>
   </div>
   <div class="separator"></div>
   <div style="display: flex; flex-direction:column; gap: 1rem;">

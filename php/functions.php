@@ -1093,3 +1093,171 @@ function getDeadlineById($deadlineId)
     // Close the statement
     $stmt->close();
 }
+
+// =========== gigs ============
+
+function getAllGigs()
+{
+    global $conn;
+
+    $sql = "SELECT * FROM gigs";
+    $result = mysqli_query($conn, $sql);
+
+    $gigs = [];
+
+    if (mysqli_num_rows($result) > 0) {
+        while ($row = mysqli_fetch_assoc($result)) {
+            $gigs[] = $row;
+        }
+    }
+
+    return $gigs;
+}
+
+// Function to add a new gig
+function addGig($title, $description, $tags)
+{
+    global $conn;
+    $email = $_SESSION['user']['email'];
+    $usn = $_SESSION['user']['usn'];
+
+    $sql = "INSERT INTO gigs (title, description, tags, email, usn) VALUES ('$title', '$description', '$tags', '$email', '$usn')";
+    $result = mysqli_query($conn, $sql);
+
+    return $result;
+}
+
+// Function to update an existing gig
+function updateGig($gig_id, $title, $description, $tags)
+{
+    global $conn;
+
+    $sql = "UPDATE gigs SET title='$title', description='$description', tags='$tags' WHERE id='$gig_id'";
+    $result = mysqli_query($conn, $sql);
+
+    return $result;
+}
+
+// Function to delete a gig
+function deleteGig($gig_id)
+{
+    global $conn;
+
+    $sql = "DELETE FROM gigs WHERE id='$gig_id'";
+    $result = mysqli_query($conn, $sql);
+
+    return $result;
+}
+
+// Function to get gig details by ID
+function getGigById($gig_id)
+{
+    global $conn;
+
+    $sql = "SELECT * FROM gigs WHERE id='$gig_id'";
+    $result = mysqli_query($conn, $sql);
+
+    $gig = null;
+
+    if (mysqli_num_rows($result) == 1) {
+        $gig = mysqli_fetch_assoc($result);
+    }
+
+    return $gig;
+}
+
+
+function filterGigs($title, $tags)
+{
+    global $conn;
+    $email = $_SESSION['user']['email'];
+    $usn = $_SESSION['user']['usn'];
+
+    // Construct the SQL query dynamically based on the filter criteria
+    $sql = "SELECT * FROM gigs WHERE email='$email' AND usn='$usn'";
+    if (!empty($title)) {
+        $sql .= " AND title LIKE '%$title%'";
+    }
+    if (!empty($tags)) {
+        $sql .= " AND tags LIKE '%$tags%'";
+    }
+
+    $result = mysqli_query($conn, $sql);
+
+    $filteredGigs = [];
+    if (mysqli_num_rows($result) > 0) {
+        while ($row = mysqli_fetch_assoc($result)) {
+            $filteredGigs[] = $row;
+        }
+    }
+
+    return $filteredGigs;
+}
+
+// ======= add message =======
+
+function addMessage($email, $gig_id, $message)
+{
+    global $conn;
+
+    // Escape special characters in message content
+    $message = mysqli_real_escape_string($conn, $message);
+
+    // SQL query to insert the message
+    $sql = "INSERT INTO messages (email, gig_id, message) VALUES ('$email', '$gig_id', '$message')";
+
+    // Execute the query
+    if (mysqli_query($conn, $sql)) {
+        return true;
+    } else {
+        // Handle query execution error
+        return false;
+    }
+}
+
+
+function getLatestMessages($gig_id)
+{
+    global $conn;
+
+    // SQL query to retrieve latest messages for the gig
+    $sql = "SELECT * FROM messages WHERE gig_id='$gig_id' ORDER BY updated_at DESC"; // Change the limit as per your requirement
+
+    // Execute the query
+    $result = mysqli_query($conn, $sql);
+
+    // Fetch the messages
+    $messages = [];
+    while ($row = mysqli_fetch_assoc($result)) {
+        $messages[] = $row;
+    }
+
+    return $messages;
+}
+
+
+// ============ report gig =========
+
+function reportGig($gig_id, $reporter_email, $title, $remarks)
+{
+    global $conn;
+
+    // Sanitize input
+    $gig_id = mysqli_real_escape_string($conn, $gig_id);
+    $reporter_email = mysqli_real_escape_string($conn, $reporter_email);
+    $title = mysqli_real_escape_string($conn, $title);
+    $remarks = mysqli_real_escape_string($conn, $remarks);
+
+    // SQL query to insert report into database
+    $sql = "INSERT INTO gig_reports (gig_id, reporter_email, title, remarks) VALUES ('$gig_id', '$reporter_email', '$title', '$remarks')";
+
+    // Execute the query
+    $result = mysqli_query($conn, $sql);
+
+    // Check if the query was successful
+    if ($result) {
+        return true;
+    } else {
+        return false;
+    }
+}

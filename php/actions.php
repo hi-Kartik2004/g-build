@@ -330,3 +330,173 @@ if (isset($_GET['editDeadline'])) {
     header("Location: ../index.php?page=deadline-reminders");
     exit();
 }
+
+// ========= gigs ===========
+
+// Handle add gig action
+if (isset($_GET['addGig'])) {
+    $title = $_POST['title'];
+    $description = $_POST['description'];
+    $tags = $_POST['tags'];
+
+    addGig($title, $description, $tags);
+    header("Location: ../index.php?page=collaboration-hub");
+    exit();
+}
+
+// Handle update gig action
+if (isset($_GET['updateGig'])) {
+    $gig_id = $_GET['updateGig'];
+    $title = $_POST['title'];
+    $description = $_POST['description'];
+    $tags = $_POST['tags'];
+
+    updateGig($gig_id, $title, $description, $tags);
+    header("Location: ../index.php?page=collaboration-hub");
+    exit();
+}
+
+// Handle delete gig action
+if (isset($_GET['deleteGig'])) {
+    $gig_id = $_GET['deleteGig'];
+
+    deleteGig($gig_id);
+    header("Location: ../index.php?page=collaboration-hub");
+    exit();
+}
+
+// Handle edit gig action
+if (isset($_GET['editGig'])) {
+    $gig_id = $_GET['editGig'];
+    $gig = getGigById($gig_id);
+
+    // Store the gig details in session for use in the form
+    $_SESSION['editGig'] = $gig;
+
+    // Redirect to the page with the form
+    header("Location: ../index.php?page=collaboration-hub");
+    exit();
+}
+
+// handle filter gigs
+if (isset($_GET['filterGigs'])) {
+    $title = isset($_POST['title']) ? $_POST['title'] : '';
+    $tags = isset($_POST['tags']) ? $_POST['tags'] : '';
+
+    $filteredGigs = filterGigs($title, $tags);
+    $_SESSION['filteredGigs'] = $filteredGigs;
+    header("Location: ../index.php?page=collaboration-hub");
+    exit();
+}
+
+
+// =========== Add message =========
+
+// Handle add message action
+if (isset($_GET['addMessage'])) {
+    // Check if the user is logged in
+    if (!isset($_SESSION['user'])) {
+        // Return error response
+        http_response_code(401); // Unauthorized
+        exit("User is not logged in");
+    }
+
+    // Validate and sanitize input
+    $message = isset($_GET['message']) ? htmlspecialchars(trim($_GET['message'])) : '';
+
+    // Perform validation on the message content
+    if (empty($message)) {
+        // Return error response
+        http_response_code(400); // Bad Request
+        exit("Message cannot be empty");
+    }
+
+    // Add the message to the gig
+    $result = addMessage($_SESSION['user']['email'], $_GET['id'], $message);
+
+    if ($result) {
+        // Return success response
+        http_response_code(200); // OK
+        exit("Message added successfully");
+    } else {
+        // Return error response
+        http_response_code(500); // Internal Server Error
+        exit("Failed to add message");
+    }
+}
+
+if (isset($_POST['addMessage'])) {
+    // Check if the user is logged in
+    if (!isset($_SESSION['user'])) {
+        // Redirect to login page or display error message
+        header("Location: ../login.php");
+        exit();
+    }
+
+    // Validate and sanitize input
+    $message = isset($_POST['message']) ? htmlspecialchars(trim($_POST['message'])) : '';
+
+    // Perform validation on the message content
+    if (empty($message)) {
+        // Handle empty message
+        // Redirect back to the gig page with an error message
+        header("Location: ../index.php?page=gig&id=" . $_GET['id'] . "&error=emptymessage");
+        exit();
+    }
+
+    // Add the message to the gig
+    $result = addMessage($_SESSION['user']['email'], $_GET['id'], $message);
+
+    if ($result) {
+        // Redirect back to the gig page with a success message
+        header("Location: ../index.php?page=gig&id=" . $_GET['id'] . "&message_added=true");
+        exit();
+    } else {
+        // Redirect back to the gig page with an error message
+        header("Location:  ../index.php?page=gig&id=" . $_GET['id'] . "&error=messagefailed");
+        exit();
+    }
+}
+
+
+// ============ fetch messages =========
+
+if (isset($_GET['fetchAllMessages'])) {
+    $id = $_GET['id'];
+    $latestMessages = getLatestMessages($id);
+    echo json_encode($latestMessages);
+}
+
+// ============ report gig ==========
+if (isset($_GET['reportGig'])) {
+    // Check if the user is logged in
+    if (!isset($_SESSION['user'])) {
+        // Redirect to login page or display error message
+        header("Location: ../login.php");
+        exit();
+    }
+
+    // Validate and sanitize input
+    $title = isset($_POST['title']) ? htmlspecialchars(trim($_POST['title'])) : '';
+    $remarks = isset($_POST['remarks']) ? htmlspecialchars(trim($_POST['remarks'])) : '';
+
+    // Perform validation on the input
+    if (empty($title) || empty($remarks)) {
+        // Redirect back to the gig page with an error message
+        header("Location: ../index.php?page=gig&id=" . $_GET['reportGig'] . "&error=emptyfields");
+        exit();
+    }
+
+    // Report the gig
+    $result = reportGig($_GET['reportGig'], $_SESSION['user']['email'], $title, $remarks);
+
+    if ($result) {
+        $_SESSION['success'] = "Gig reported successfully";
+        header("Location: ../index.php?page=gig&id=" . $_GET['reportGig'] . "&report_success=true");
+        exit();
+    } else {
+        // Redirect back to the gig page with an error message
+        header("Location:  ../index.php?page=gig&id=" . $_GET['reportGig'] . "&error=reportfailed");
+        exit();
+    }
+}

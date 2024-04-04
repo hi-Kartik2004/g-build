@@ -24,6 +24,12 @@ session_start();
             include("./pages/EditProfilePage.php");
         } else if ($page == "deadline-reminders") {
             include("./pages/DeadlineReminders.php");
+        } else if ($page == "collaboration-hub") {
+            include("./pages/CollaborationHub.php");
+        } else if ($page == "gig") {
+            include("./pages/GigPage.php");
+        } else if ($page == "Resource-repository") {
+            include("./pages/ResourceRepository.php");
         } else {
             include("./pages/DashboardPage.php");
         }

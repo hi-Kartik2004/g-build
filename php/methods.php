@@ -1,7 +1,7 @@
 <?php
 require_once("config.php");
 require_once("functions.php");
-session_start();
+// session_start();
 $conn = mysqli_connect(server, host, password, db_name);
 
 function handleRegister()
