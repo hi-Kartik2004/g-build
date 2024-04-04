@@ -85,6 +85,8 @@ https://gbuild2004.000webhostapp.com/index.php?page=login
     - User Login
     - Edit profile
     - Upload and edit profile pictures.
+    - push notification using Firebase Cloud messaging service.
+
     
     
 
