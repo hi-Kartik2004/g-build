@@ -69,7 +69,12 @@ unset($_SESSION['editExpense']);
             </div>
             <div class="separator"></div>
             <!-- Form for adding or updating expense -->
-            <h5>Add / Update an Expense</h5>
+            <div>
+                <h5>Add / Update an Expense</h5>
+                <?php if (isset($editExpense)) : ?>
+                    <span style="font-size: 0.75rem;">(refresh to add)</span>
+                <?php endif; ?>
+            </div>
             <div style="display: flex; flex-direction:column; gap: 1rem;">
                 <form method="post" action="<?php echo $editExpense ? './php/actions.php?updateExpense=' . $editExpense['id'] : './php/actions.php?addExpense'; ?>" class="flex flex-col gap-2">
                     <select name="category" id="category" required>

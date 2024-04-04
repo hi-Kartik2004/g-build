@@ -64,7 +64,12 @@ unset($_SESSION['editRepo']);
             <div class="separator"></div>
 
             <!-- Form for adding or updating repository -->
-            <h5><?php echo isset($editRepo) ? 'Update' : 'Add'; ?> a Repository</h5>
+            <div>
+                <h5><?php echo isset($editRepo) ? 'Update' : 'Add'; ?> a Repository</h5>
+                <?php if (isset($editRepo)) : ?>
+                    <span style="font-size: 0.75rem;">(refresh to add)</span>
+                <?php endif; ?>
+            </div>
             <div style="display: flex; flex-direction:column; gap: 1rem;">
                 <form method="post" action="<?php echo isset($editRepo) ? './php/actions.php?updateRepo=' . $editRepo['id'] : './php/actions.php?addRepo'; ?>" enctype="multipart/form-data" style="display: flex; flex-direction:column; gap: .75rem;">
 
