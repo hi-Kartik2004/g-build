@@ -1,7 +1,7 @@
 <?php
 include("./php/functions.php")
 ?>
-<div class="dashboard__section" style="width:100%">
+<div class="" style="width:100%; width:600px;">
   <h1>Dashboard</h1>
   <?php if (isset($_SESSION['user'])) : ?>
     <h2>Welcome, <?= $_SESSION['user']['name'] ?></h2>
