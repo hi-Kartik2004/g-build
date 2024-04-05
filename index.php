@@ -32,16 +32,16 @@ if (isset($_GET['page'])) {
         //     exit();
         // }
     } else {
-
         // unsecured routes
         if ($page == "register") {
             include("./pages/RegisterPage.php");
+            exit();
         } else if ($page == "login") {
             include("./pages/LoginPage.php");
-        } else {
-            header("Location: ?page=login");
             exit();
         }
+        header("Location: ?page=login");
+        exit();
     }
 } else {
     // landing page
